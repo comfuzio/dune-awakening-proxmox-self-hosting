@@ -205,6 +205,15 @@ This reclaims storage space on the Proxmox host.
 
 ---
 
+## 🚀 Initializing the Battlegroup
+Once your VM is running in Proxmox and you can ping it, follow these steps from your Windows PC:
+
+1. **Configure the IP:** Open my modified `initial-setup.ps1` and `battlegroup.ps1` from my "proxmox" folder and set the `$vmIP` variable to your Proxmox VM's IP.
+2. **Run Setup:** Run `initial-setup.ps1` as Administrator. This will:
+   - Inject your Public/Local IP into the VM's `settings.conf`.
+   - Trigger the internal `setup` script to resize the disk and download game binaries[cite: 1].
+3. **Launch:** Open `battlegroup.ps1`, select **Option 2 (start)**, and wait for the Kubernetes pods to initialize[cite: 1].
+
 # ⚖️ Legal Disclaimer
 
 - **Dune: Awakening** is a trademark of Legendary and Funcom.
