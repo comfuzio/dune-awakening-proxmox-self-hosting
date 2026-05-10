@@ -4,6 +4,8 @@ This guide explains how to migrate the **Dune: Awakening Self-Hosted Server** fr
 
 Running the server directly on Proxmox significantly reduces overhead and improves overall stability and performance.
 
+This is work in progress, please join the discord of the community: https://discord.gg/rgR79rfnRZ
+
 ---
 
 # 🚀 Benefits
@@ -94,6 +96,7 @@ qm importdisk 7000 /root/dune-server.vhdx local-zfs
 
 ```bash
 qm set 7000 --scsihw virtio-scsi-pci --scsi0 local-zfs:vm-7000-disk-0
+qm set 7000 --scsihw virtio-scsi-single --scsi0 local-zfs:vm-7000-disk-1,discard=on,cache=writeback,ssd=1,iothread=1
 ```
 
 ---
@@ -228,5 +231,7 @@ Once your VM is running in Proxmox and you can ping it, follow these steps from 
 # ✅ Final Notes
 
 Once networking and port forwarding are configured, your Dune: Awakening dedicated server should operate fully natively under Proxmox VE with lower overhead and improved stability compared to the original Windows/Hyper-V deployment.
+
+Parts of this guide have been written by AI (gemini), mostly the visual parts and the details of the guide. Most of the work is based on template I am mostly working to import .vhdx .qcow2 and other formats to my proxmox hosts.
 
 Happy hosting. 🏜️
