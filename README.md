@@ -95,8 +95,9 @@ qm importdisk 7000 /root/dune-server.vhdx local-zfs
 ### Attach the Imported Disk
 
 ```bash
-qm set 7000 --scsihw virtio-scsi-pci --scsi0 local-zfs:vm-7000-disk-0
-qm set 7000 --scsihw virtio-scsi-single --scsi0 local-zfs:vm-7000-disk-1,discard=on,cache=writeback,ssd=1,iothread=1
+qm set 7000 --scsihw virtio-scsi-single \
+  --scsi0 local-zfs:vm-7000-disk-0 \
+  --scsi1 local-zfs:vm-7000-disk-1,discard=on,cache=writeback,ssd=1,iothread=1
 ```
 
 ---
