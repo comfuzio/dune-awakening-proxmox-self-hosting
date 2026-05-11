@@ -28,7 +28,7 @@ Before starting, ensure you have:
 - 🖥️ A **Proxmox VE** node with:
   - At least **42GB free RAM**
   - Enough storage space for the imported VM disk(minimum 100gb)
-- 📦 The `dune-server.vhdx` file from your Steam installation directory
+- 📦 The `dune-server.vhdx` file from your Steam installation directory. You will need to run it first on hyper-v in order to get this file. This can change if funcom gives us the ability to redistribute their files.
 - 📚 The official Funcom documentation for:
   - Account linking
   - Token generation
@@ -42,7 +42,7 @@ Before starting, ensure you have:
 
 ## 1️⃣ Transfer the Virtual Disk
 
-Copy the `dune-server.vhdx` file to your Proxmox host.
+Copy the `dune-server.vhdx` file to your Proxmox host. You must first have this from Hyper-V!!!
 
 Recommended methods:
 
