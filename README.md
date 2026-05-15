@@ -4,7 +4,7 @@ This guide explains how to migrate the **Dune: Awakening Self-Hosted Server** fr
 
 Running the server directly on Proxmox significantly reduces overhead and improves overall stability and performance.
 
-This is work in progress, please join the discord of the community: https://discord.gg/rgR79rfnRZ
+This is work in progress, please join the community's discord: https://discord.gg/rgR79rfnRZ
 
 ---
 
@@ -27,8 +27,8 @@ Before starting, ensure you have:
   - Steam AppID: `3104830`
 - 🖥️ A **Proxmox VE** node with:
   - At least **42GB free RAM**
-  - Enough storage space for the imported VM disk(minimum 100gb)
-- 📦 The `dune-server.vhdx` file from your Steam installation directory. You will need to run it first on hyper-v in order to get this file. This can change if funcom gives us the ability to redistribute their files.
+  - Enough storage space for the imported VM disk(minimum 100gb for the vm alone)
+- 📦 The `dune-server.vhdx` file from your Steam installation directory. You will need to run it first on hyper-v in order to get this file. This can change if funcom gives us the ability to redistribute the image.
 - 📚 The official Funcom documentation for:
   - Account linking
   - Token generation
@@ -42,14 +42,14 @@ Before starting, ensure you have:
 
 ## 1️⃣ Transfer the Virtual Disk
 
-Copy the `dune-server.vhdx` file to your Proxmox host. You must first have this from Hyper-V!!!
+Copy the `dune-server.vhdx` file to your Proxmox host. First you must have this from Hyper-V!!!
 
 Recommended methods:
 
 - WinSCP
 - `scp`
 - `rsync`
-- Direct download
+- Direct download (wget)
 
 Suggested destination:
 
@@ -105,7 +105,7 @@ qm set 7000 --scsihw virtio-scsi-single \
 ### Configure Boot Order & Display
 
 ```bash
-qm set 7000 --boot order=scsi0
+qm set 7000 --boot order=scsi1
 qm set 7000 --vga virtio
 ```
 
@@ -233,6 +233,6 @@ Once your VM is running in Proxmox and you can ping it, follow these steps from 
 
 Once networking and port forwarding are configured, your Dune: Awakening dedicated server should operate fully natively under Proxmox VE with lower overhead and improved stability compared to the original Windows/Hyper-V deployment.
 
-Parts of this guide have been written by AI (gemini), mostly the visual parts and the details of the guide. Most of the work is based on template I am mostly working to import .vhdx .qcow2 and other formats to my proxmox hosts.
+Parts of this guide have been written by AI (gemini), mostly the visual parts and the details of the guide. Most of the work is based on template I am working to import .vhdx .qcow2 and other formats to my proxmox hosts.
 
 Happy hosting. 🏜️
