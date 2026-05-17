@@ -99,7 +99,7 @@ qm set 7000 --scsihw virtio-scsi-single \
   --scsi0 local-zfs:vm-7000-disk-0 \
   --scsi1 local-zfs:vm-7000-disk-1,discard=on,cache=writeback,ssd=1,iothread=1
 ```
-
+### If you have imported the disk without prior configuration in the hyper-v, please resize the disk by adding another 110gb as minimum.
 ---
 
 ### Configure Boot Order & Display
