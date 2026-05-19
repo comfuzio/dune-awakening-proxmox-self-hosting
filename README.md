@@ -1,14 +1,21 @@
 # 🏜️ Dune: Awakening — Native Proxmox Migration Guide
 
-This guide explains how to deploy the **Dune: Awakening Self-Hosted Server** directly on **Proxmox VE (KVM)** without requiring a permanent Windows/Hyper-V environment.
+This guide explains how to deploy the **Dune: Awakening Self-Hosted Server** directly on **Proxmox VE (KVM)**.
 
-The server image is downloaded directly from Steam using SteamCMD and then imported into Proxmox as a native VM.
+You can deploy the server using **two different methods**:
 
-Running the server directly on Proxmox significantly reduces overhead and improves overall stability and performance.
+| Method | Description |
+|---|---|
+| 📦 SteamCMD Method (Recommended) | Download the official VHDX directly on the Proxmox host |
+| 🖥️ Hyper-V Migration Method | Export an already initialized VHDX from Windows/Hyper-V |
+
+Running the server directly on Proxmox significantly reduces overhead and improves overall stability and performance compared to nested Hyper-V virtualization.
 
 > 🚧 This project is still work in progress.
 
-## 💬 Community Discord
+---
+
+# 💬 Community Discord
 
 Join the community Discord:
 
@@ -24,7 +31,7 @@ https://discord.gg/rgR79rfnRZ
 | 🐧 Native Linux Execution | Run the Kubernetes (**k3s**) cluster directly on Linux |
 | ⚡ Better Performance | Improved virtualization performance using `--cpu host` |
 | 🛠️ Cleaner Infrastructure | Simpler maintenance compared to nested Hyper-V setups |
-| 📦 Direct Steam Download | No need to manually extract VHDX files from Hyper-V |
+| 📦 Multiple Deployment Options | Deploy using SteamCMD or Hyper-V export |
 
 ---
 
@@ -44,17 +51,23 @@ Before starting, ensure you have:
 
 ---
 
-# 🛠️ Installation Steps
+# 🛠️ Deployment Methods
+
+Choose **ONE** of the following methods.
 
 ---
 
-# 1️⃣ Install SteamCMD on Proxmox
+# 📦 Method 1 — Direct SteamCMD Download (Recommended)
+
+This method downloads the official dedicated server image directly on the Proxmox host.
+
+---
+
+## 1️⃣ Install SteamCMD on Proxmox
 
 Run the following directly on the Proxmox host shell.
 
-## Enable 32-bit Architecture Support
-
-SteamCMD requires i386 compatibility libraries.
+### Enable 32-bit Architecture Support
 
 ```bash
 dpkg --add-architecture i386
@@ -62,7 +75,7 @@ dpkg --add-architecture i386
 
 ---
 
-## Enable Debian Non-Free Repositories
+### Enable Debian Non-Free Repositories
 
 ```bash
 sed -i 's/Components: main contrib non-free-firmware/Components: main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources
@@ -70,7 +83,7 @@ sed -i 's/Components: main contrib non-free-firmware/Components: main contrib no
 
 ---
 
-## Install SteamCMD
+### Install SteamCMD
 
 ```bash
 apt update
@@ -79,7 +92,7 @@ apt install -y steamcmd
 
 ---
 
-# 2️⃣ Download the Official Dune Server Image
+## 2️⃣ Download the Official Dune Server Image
 
 Create a temporary download directory:
 
@@ -87,7 +100,7 @@ Create a temporary download directory:
 mkdir -p /tmp/dune-download
 ```
 
-Download the official dedicated server package directly from Steam:
+Download the dedicated server package directly from Steam:
 
 ```bash
 /usr/games/steamcmd \
@@ -98,7 +111,7 @@ Download the official dedicated server package directly from Steam:
   +quit
 ```
 
-The VHDX image will be downloaded to:
+The VHDX image will be located at:
 
 ```text
 /tmp/dune-download/Virtual Hard Disks/dune-server.vhdx
@@ -106,12 +119,62 @@ The VHDX image will be downloaded to:
 
 ---
 
-# 3️⃣ Create the Proxmox VM
+# 🖥️ Method 2 — Hyper-V Migration
+
+This method migrates an already initialized VHDX from Windows/Hyper-V.
+
+Useful if:
+
+- You already have a working Hyper-V deployment
+- You want to preserve existing configuration/data
+- SteamCMD download is unavailable
+
+---
+
+## 1️⃣ Obtain the VHDX File
+
+Run the dedicated server at least once inside Hyper-V.
+
+Locate the generated VHDX file:
+
+```text
+dune-server.vhdx
+```
+
+---
+
+## 2️⃣ Transfer the VHDX to Proxmox
+
+Copy the VHDX file to the Proxmox host using one of the following methods:
+
+- WinSCP
+- SCP
+- rsync
+- SMB share
+- External drive
+
+Suggested destination:
+
+```text
+/root/dune-server.vhdx
+```
+
+---
+
+# 🖥️ Shared Proxmox VM Setup
+
+The following steps apply to **both deployment methods**.
+
+---
+
+# 1️⃣ Create the Proxmox VM
 
 > ⚠️ Replace:
 >
 > - `7000` with your desired VM ID
 > - `local-zfs` with your actual Proxmox storage pool
+
+---
 
 ## Create the VM
 
@@ -137,7 +200,9 @@ qm set 7000 --efidisk0 local-zfs:0,format=raw
 
 ---
 
-# 4️⃣ Import the VHDX Disk
+# 2️⃣ Import the VHDX Disk
+
+## SteamCMD Method
 
 ```bash
 qm importdisk 7000 \
@@ -147,7 +212,17 @@ qm importdisk 7000 \
 
 ---
 
-# 5️⃣ Attach the Imported Disk
+## Hyper-V Migration Method
+
+```bash
+qm importdisk 7000 \
+  "/root/dune-server.vhdx" \
+  local-zfs
+```
+
+---
+
+# 3️⃣ Attach the Imported Disk
 
 ```bash
 qm set 7000 \
@@ -157,7 +232,7 @@ qm set 7000 \
 
 ---
 
-# 6️⃣ Resize the Disk (Recommended)
+# 4️⃣ Resize the Disk (Recommended)
 
 The default image is extremely small and should be expanded before first boot.
 
@@ -173,7 +248,7 @@ qm resize 7000 scsi0 +110G
 
 ---
 
-# 7️⃣ Configure Boot Order & Display
+# 5️⃣ Configure Boot Order & Display
 
 ```bash
 qm set 7000 --boot order=scsi0
@@ -182,7 +257,7 @@ qm set 7000 --vga virtio
 
 ---
 
-# 8️⃣ Start the VM
+# 6️⃣ Start the VM
 
 ```bash
 qm start 7000
@@ -303,13 +378,15 @@ This script will:
 - Expand the filesystem
 - Download/update game binaries
 
+---
+
 4. Run:
 
 ```powershell
 battlegroup.ps1
 ```
 
-5. Select:
+Select:
 
 ```text
 Option 2 (start)
@@ -321,13 +398,19 @@ Wait for the Kubernetes pods to initialize.
 
 # 🧹 Cleanup
 
-After confirming successful operation:
+## SteamCMD Method
 
 ```bash
 rm -rf /tmp/dune-download
 ```
 
-This reclaims storage space on the Proxmox host.
+---
+
+## Hyper-V Migration Method
+
+```bash
+rm /root/dune-server.vhdx
+```
 
 ---
 
@@ -346,7 +429,7 @@ This reclaims storage space on the Proxmox host.
 
 Your Dune: Awakening server should now operate natively under Proxmox VE with significantly lower overhead compared to nested Windows/Hyper-V deployments.
 
-This guide is still evolving as the dedicated server tooling changes during the public testing phases.
+This guide is still evolving as the dedicated server tooling changes during public testing phases.
 
 Parts of this guide were assisted by AI tooling for:
 - Formatting
