@@ -40,9 +40,12 @@ https://discord.gg/rgR79rfnRZ
 Before starting, ensure you have:
 
 - 🎮 Access to the **Dune: Awakening Public Test Dedicated Server**
-- 🖥️ A **Proxmox VE** node with:
-  - At least **42GB free RAM**
-  - Minimum **100GB free storage**
+- 🖥️ A **Proxmox VE** node running:
+  - **Proxmox VE 9.x recommended** (or latest fully updated stable branch)
+  - Older versions may behave differently during VHDX import, EFI boot setup, or disk attachment
+- 💾 System resources for the VM:
+  - At least **40GB free RAM for the full experince**
+  - Minimum **110GB free storage**
 - 🌐 Internet connectivity on the Proxmox host
 - 📚 Official Funcom documentation for:
   - Account linking
