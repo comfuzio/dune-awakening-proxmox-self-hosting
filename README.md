@@ -7,11 +7,11 @@ You can deploy the server using **two different methods**:
 | Method | Description |
 |---|---|
 | 📦 SteamCMD Method (Recommended) | Download the official VHDX directly on the Proxmox host |
-| 🖥️ Hyper-V Migration Method | Export an already initialized VHDX from Windows/Hyper-V |
+| 🖥️ Hyper-V Migration Method | Import an already initialized VHDX from Windows/Hyper-V |
 
 Running the server directly on Proxmox significantly reduces overhead and improves overall stability and performance compared to nested Hyper-V virtualization.
 
-> 🚧 This project is still work in progress.
+> 🚧 This project is still a work in progress.
 
 ---
 
@@ -57,33 +57,25 @@ Choose **ONE** of the following methods.
 
 ---
 
-# 📦 Method 1 — Direct SteamCMD Download (Recommended)
+# 📦 Method 1 — SteamCMD Download (Recommended)
 
-This method downloads the official dedicated server image directly on the Proxmox host.
-
----
+This method downloads the official server image directly on the Proxmox host.
 
 ## 1️⃣ Install SteamCMD on Proxmox
 
-Run the following directly on the Proxmox host shell.
-
-### Enable 32-bit Architecture Support
+Enable i386 support:
 
 ```bash
 dpkg --add-architecture i386
 ```
 
----
-
-### Enable Debian Non-Free Repositories
+Enable Debian non-free repositories:
 
 ```bash
 sed -i 's/Components: main contrib non-free-firmware/Components: main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources
 ```
 
----
-
-### Install SteamCMD
+Install SteamCMD:
 
 ```bash
 apt update
@@ -94,13 +86,13 @@ apt install -y steamcmd
 
 ## 2️⃣ Download the Official Dune Server Image
 
-Create a temporary download directory:
+Create a temporary directory:
 
 ```bash
 mkdir -p /tmp/dune-download
 ```
 
-Download the dedicated server package directly from Steam:
+Download the dedicated server package:
 
 ```bash
 /usr/games/steamcmd \
@@ -111,7 +103,7 @@ Download the dedicated server package directly from Steam:
   +quit
 ```
 
-The VHDX image will be located at:
+VHDX location:
 
 ```text
 /tmp/dune-download/Virtual Hard Disks/dune-server.vhdx
@@ -121,21 +113,19 @@ The VHDX image will be located at:
 
 # 🖥️ Method 2 — Hyper-V Migration
 
-This method migrates an already initialized VHDX from Windows/Hyper-V.
+This method migrates an already initialized VHDX.
 
 Useful if:
 
 - You already have a working Hyper-V deployment
-- You want to preserve existing configuration/data
+- You want to preserve configuration/data
 - SteamCMD download is unavailable
 
----
+## 1️⃣ Obtain the VHDX
 
-## 1️⃣ Obtain the VHDX File
+Run the dedicated server once inside Hyper-V.
 
-Run the dedicated server at least once inside Hyper-V.
-
-Locate the generated VHDX file:
+Locate:
 
 ```text
 dune-server.vhdx
@@ -145,15 +135,9 @@ dune-server.vhdx
 
 ## 2️⃣ Transfer the VHDX to Proxmox
 
-Copy the VHDX file to the Proxmox host using one of the following methods:
+Copy to the Proxmox host using SCP, rsync, SMB, WinSCP, or external storage.
 
-- WinSCP
-- SCP
-- rsync
-- SMB share
-- External drive
-
-Suggested destination:
+Suggested path:
 
 ```text
 /root/dune-server.vhdx
@@ -163,20 +147,18 @@ Suggested destination:
 
 # 🖥️ Shared Proxmox VM Setup
 
-The following steps apply to **both deployment methods**.
+These steps apply to **both methods**.
 
 ---
 
 # 1️⃣ Create the Proxmox VM
 
-> ⚠️ Replace:
->
-> - `7000` with your desired VM ID
-> - `local-zfs` with your actual Proxmox storage pool
+Replace:
 
----
+- `7000` → your VM ID
+- `local-zfs` → your Proxmox storage
 
-## Create the VM
+Create the VM:
 
 ```bash
 qm create 7000 \
@@ -190,9 +172,7 @@ qm create 7000 \
   --bios ovmf
 ```
 
----
-
-## Add EFI Disk
+Add EFI disk:
 
 ```bash
 qm set 7000 --efidisk0 local-zfs:0,format=raw
@@ -202,7 +182,7 @@ qm set 7000 --efidisk0 local-zfs:0,format=raw
 
 # 2️⃣ Import the VHDX Disk
 
-## SteamCMD Method
+### SteamCMD Method
 
 ```bash
 qm importdisk 7000 \
@@ -210,9 +190,7 @@ qm importdisk 7000 \
   local-zfs
 ```
 
----
-
-## Hyper-V Migration Method
+### Hyper-V Method
 
 ```bash
 qm importdisk 7000 \
@@ -220,9 +198,32 @@ qm importdisk 7000 \
   local-zfs
 ```
 
+After import, Proxmox typically adds the disk as **Unused Disk 0**.
+
 ---
 
-# 3️⃣ Attach the Imported Disk
+# 3️⃣ Attach the Imported Disk as SCSI 0 (Critical)
+
+> ⚠️ Required step.  
+> Funcom’s internal `setup.sh` expects the primary boot disk to be attached as **SCSI 0**.  
+> If this is skipped or attached differently, automatic filesystem expansion may fail and the VM may remain at the original tiny disk size.
+
+## Option A — Proxmox GUI (Recommended)
+
+1. Open the VM in Proxmox
+2. Go to **Hardware**
+3. Double-click **Unused Disk 0**
+4. Set Bus/Device to:
+
+```text
+SCSI 0
+```
+
+5. Save
+
+---
+
+## Option B — CLI
 
 ```bash
 qm set 7000 \
@@ -230,13 +231,15 @@ qm set 7000 \
   --scsi0 local-zfs:vm-7000-disk-0
 ```
 
+This attaches the imported disk as the primary boot disk.
+
 ---
 
 # 4️⃣ Resize the Disk (Recommended)
 
-The default image is extremely small and should be expanded before first boot.
+Resize **before first boot**.
 
-Recommended minimum additional storage:
+Recommended additional space:
 
 - **+110GB**
 
@@ -245,6 +248,8 @@ Example:
 ```bash
 qm resize 7000 scsi0 +110G
 ```
+
+This enlarges the virtual disk so Funcom’s initialization can expand the Alpine filesystem during setup.
 
 ---
 
@@ -267,13 +272,13 @@ qm start 7000
 
 # 🌐 Network Configuration (Post-Migration)
 
-Because the virtual hardware changes during migration/import, the Alpine Linux network interface must be reconfigured.
+Because virtual hardware changes during import/migration, Alpine networking may need adjustment.
 
 ---
 
 # Access the VM Console
 
-Open the VM console from Proxmox and log in using:
+Open Proxmox console and log in:
 
 ```text
 Username: root
@@ -282,7 +287,7 @@ Password: dune
 
 ---
 
-# Identify the Network Interface
+# Identify Network Interface
 
 Run:
 
@@ -290,7 +295,7 @@ Run:
 ip a
 ```
 
-Typical interface names include:
+Typical interfaces:
 
 ```text
 ens18
@@ -304,7 +309,7 @@ eth0
 
 ## Option A — DHCP Reservation (Recommended)
 
-Configure your router/DHCP server to always assign the same IP address to the VM MAC address.
+Reserve a fixed IP in your DHCP server/router.
 
 ---
 
@@ -342,7 +347,7 @@ service k3s restart
 
 # 🌍 Router NAT / Port Forwarding
 
-To allow external players to connect, configure port forwarding to the VM IP address.
+Forward traffic to the VM IP.
 
 | Port Range | Protocol | Purpose |
 |---|---|---|
@@ -355,44 +360,49 @@ To allow external players to connect, configure port forwarding to the VM IP add
 
 Once the VM is reachable:
 
-1. Open your modified:
-   - `initial-setup.ps1`
-   - `battlegroup.ps1`
+## 1️⃣ Update Scripts
 
-2. Set the VM IP:
+Modify:
+
+- `initial-setup.ps1`
+- `battlegroup.ps1`
+
+Set VM IP:
 
 ```powershell
 $vmIP = "YOUR_VM_IP"
 ```
 
-3. Run:
+---
+
+## 2️⃣ Run Initial Setup
 
 ```powershell
 initial-setup.ps1
 ```
 
-This script will:
+This script:
 
-- Inject Public/Local IP values into `settings.conf`
-- Trigger the internal setup process
-- Expand the filesystem
-- Download/update game binaries
+- Injects Public/Local IP into `settings.conf`
+- Triggers internal setup
+- Expands filesystem
+- Downloads/updates game binaries
 
 ---
 
-4. Run:
+## 3️⃣ Start Battlegroup
 
 ```powershell
 battlegroup.ps1
 ```
 
-Select:
+Choose:
 
 ```text
 Option 2 (start)
 ```
 
-Wait for the Kubernetes pods to initialize.
+Wait for Kubernetes pods to initialize.
 
 ---
 
@@ -404,9 +414,7 @@ Wait for the Kubernetes pods to initialize.
 rm -rf /tmp/dune-download
 ```
 
----
-
-## Hyper-V Migration Method
+## Hyper-V Method
 
 ```bash
 rm /root/dune-server.vhdx
@@ -421,19 +429,16 @@ rm /root/dune-server.vhdx
   - Game files
   - Virtual disks
   - Proprietary assets
-- Users are responsible for complying with the official Funcom EULA and hosting policies.
+- Users are responsible for complying with Funcom EULA and hosting policies.
 
 ---
 
 # ✅ Final Notes
 
-Your Dune: Awakening server should now operate natively under Proxmox VE with significantly lower overhead compared to nested Windows/Hyper-V deployments.
+Your Dune: Awakening server should now run natively on Proxmox VE with significantly lower overhead than nested Hyper-V deployments.
 
-This guide is still evolving as the dedicated server tooling changes during public testing phases.
+The most important Proxmox-specific requirement is ensuring the imported disk is attached as **SCSI 0 before first boot**, otherwise Funcom’s expansion process may fail.
 
-Parts of this guide were assisted by AI tooling for:
-- Formatting
-- Documentation cleanup
-- Markdown restructuring
+This guide will evolve as dedicated server tooling changes during public testing.
 
 Happy hosting. 🏜️
