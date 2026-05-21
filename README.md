@@ -2,6 +2,10 @@
 
 This guide explains how to deploy the **Dune: Awakening Self-Hosted Server** directly on **Proxmox VE (KVM)**.
 
+Please also have a look at this project > https://github.com/IEquilibriumI/dune-selfhost-ansible for a clean ubuntu installation via Ansible.
+While I will maintain this project due to the love in Dune: Awakening, myself am using the above guide for my own personal host (E-Arena.gr).
+Also please have a look into another project of mine > https://github.com/comfuzio/OpenDune-Director for managing your host via a web ui :) 
+
 You can deploy the server using **two different methods**:
 
 | Method | Description |
@@ -211,7 +215,7 @@ After import, Proxmox typically adds the disk as **Unused Disk 0**.
 > Funcom’s internal `setup.sh` expects the primary boot disk to be attached as **SCSI 0**.  
 > If this is skipped or attached differently, automatic filesystem expansion may fail and the VM may remain at the original tiny disk size.
 
-## Option A — Proxmox GUI (Recommended)
+## Proxmox GUI (Recommended)
 
 1. Open the VM in Proxmox
 2. Go to **Hardware**
@@ -226,7 +230,7 @@ SCSI 0
 
 ---
 
-## Option B — CLI
+## Via CLI add the virtio-scsi-single controller
 
 ```bash
 qm set 7000 \
