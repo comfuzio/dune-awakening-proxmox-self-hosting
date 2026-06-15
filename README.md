@@ -4,7 +4,8 @@ This guide explains how to deploy the **Dune: Awakening Self-Hosted Server** dir
 
 Please also have a look at this project > https://github.com/IEquilibriumI/dune-selfhost-ansible for a clean ubuntu installation via Ansible.
 While I will maintain this project due to the love in Dune: Awakening, myself am using the above guide for my own personal host (E-Arena.gr).
-Also please have a look into another project of mine > https://github.com/comfuzio/OpenDune-Director for managing your host via a web ui :) 
+Also please have a look into another project of mine > https://github.com/comfuzio/OpenDune-Director for managing your host via a web ui :)
+In case your server isn't accessible from the web or you have dynamic IP and it has changed, you can fix this with this other script of mine > https://github.com/comfuzio/Dune-Awakening-remote-players-fix (backups always first)
 
 You can deploy the server using **two different methods**:
 
@@ -43,18 +44,20 @@ https://discord.gg/rgR79rfnRZ
 
 Before starting, ensure you have:
 
-- 🎮 Access to the **Dune: Awakening Public Test Dedicated Server**
+- 🎮 Access to the **Dune: Awakening Dedicated Server**
 - 🖥️ A **Proxmox VE** node running:
   - **Proxmox VE 9.x recommended** (or latest fully updated stable branch)
   - Older versions may behave differently during VHDX import, EFI boot setup, or disk attachment
 - 💾 System resources for the VM:
   - At least **40GB free RAM for the full experince**
   - Minimum **110GB free storage**
+  - AVX2 CPU instruction set
 - 🌐 Internet connectivity on the Proxmox host
 - 📚 Official Funcom documentation for:
   - Account linking
   - Token generation
   - Server authentication
+  - Port Forwarding
 
 ---
 
@@ -179,12 +182,6 @@ qm create 7000 \
   --bios ovmf
 ```
 
-Add EFI disk:
-
-```bash
-qm set 7000 --efidisk0 local-zfs:0,format=raw
-```
-
 ---
 
 # 2️⃣ Import the VHDX Disk
@@ -239,6 +236,12 @@ qm set 7000 \
 ```
 
 This attaches the imported disk as the primary boot disk.
+
+Add EFI disk:
+
+```bash
+qm set 7000 --efidisk0 local-zfs:0,format=raw
+```
 
 ---
 
@@ -420,6 +423,20 @@ Wait for Kubernetes pods to initialize.
 ```bash
 rm -rf /tmp/dune-download
 ```
+# 🧹 Clean Up APT Notices (Optional)
+
+Because we enabled the `i386` architecture for SteamCMD, you may see a notice when running `apt update` stating that the Proxmox repository doesn't support `i386`. 
+
+To clean up your `apt update` output, we can tell Proxmox's repository manager to only look for 64-bit packages. 
+
+Modern Proxmox installations use the DEB822 format (`.sources` files). You can inject the `Architectures: amd64` rule automatically by running this command:
+
+```bash
+sed -i '/^URIs:.*proxmox\.com/a Architectures: amd64' /etc/apt/sources.list.d/proxmox.sources
+```
+(Note: If you have the enterprise or test repositories enabled, you may also need to run this against /etc/apt/sources.list.d/pve-enterprise.sources or pve-test.sources).
+
+Run apt update again, and the notice will be completely gone!
 
 ## Hyper-V Method
 
