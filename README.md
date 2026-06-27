@@ -4,10 +4,12 @@ This guide explains how to deploy the **Dune: Awakening Self-Hosted Server** dir
 
 Please also have a look at this project > https://github.com/IEquilibriumI/dune-selfhost-ansible for a clean ubuntu installation via Ansible.
 While I will maintain this project due to the love in Dune: Awakening, myself am using the above guide for my own personal host (E-Arena.gr).
-Also please have a look into another project of mine > https://github.com/comfuzio/OpenDune-Director for managing your host via a web ui :)
-In case your server isn't accessible from the web or you have dynamic IP and it has changed, you can fix this with this other script of mine > https://github.com/comfuzio/Dune-Awakening-remote-players-fix (backups always first)
+Also please have a look into another project of mine > In case your server isn't accessible from the web or you have dynamic IP and it has changed, you can fix this with this other script of mine > https://github.com/comfuzio/Dune-Awakening-remote-players-fix (backups always first)
 
-You can deploy the server using **two different methods**:
+# Warning! 
+Official PTC Dune: Awakening discord community is highly toxic and hostile.
+
+# You can deploy the server using **two different methods**:
 
 | Method | Description |
 |---|---|
@@ -22,9 +24,7 @@ Running the server directly on Proxmox significantly reduces overhead and improv
 
 # 💬 Community Discord
 
-Join the community Discord:
-
-https://discord.gg/rgR79rfnRZ
+Join the E-Arena.gr community Discord: https://discord.gg/xmYSSTJkMz if you need support or help. Other channels or servers are no longer supported.
 
 ---
 
@@ -54,7 +54,7 @@ Before starting, ensure you have:
   - AVX2 CPU instruction set
 - 🌐 Internet connectivity on the Proxmox host
 - 📚 Official Funcom documentation for:
-  - Account linking
+  - Account linking - https://account.duneawakening.com/
   - Token generation
   - Server authentication
   - Port Forwarding
@@ -167,6 +167,7 @@ Replace:
 
 - `7000` → your VM ID
 - `local-zfs` → your Proxmox storage
+- `cores 12` → your CPU cores you want to assign to the vm
 
 Create the VM:
 
@@ -464,5 +465,7 @@ Your Dune: Awakening server should now run natively on Proxmox VE with significa
 The most important Proxmox-specific requirement is ensuring the imported disk is attached as **SCSI 0 before first boot**, otherwise Funcom’s expansion process may fail.
 
 This guide will evolve as dedicated server tooling changes during public testing.
+
+Decoration and alignment of elements in this guide was done with the help of AI.
 
 Happy hosting. 🏜️
