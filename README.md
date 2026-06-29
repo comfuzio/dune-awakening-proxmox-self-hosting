@@ -2,8 +2,7 @@
 
 This guide explains how to deploy the **Dune: Awakening Self-Hosted Server** directly on **Proxmox VE (KVM)**.
 
-Please also have a look at this project > https://github.com/IEquilibriumI/dune-selfhost-ansible for a clean ubuntu installation via Ansible.
-While I will maintain this project due to the love in Dune: Awakening, myself am using the above guide for my own personal host (E-Arena.gr).
+While I will maintain this project due to the love in Dune: Awakening, myself am using another method for the time being for my own personal host (E-Arena.gr).
 Also please have a look into another project of mine > In case your server isn't accessible from the web or you have dynamic IP and it has changed, you can fix this with this other script of mine > https://github.com/comfuzio/Dune-Awakening-remote-players-fix (backups always first)
 
 # Warning! 
