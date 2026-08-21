@@ -1,3 +1,5 @@
+
+
 # 🏜️ Dune: Awakening — Native Proxmox Migration Guide
 
 This guide explains how to deploy the **Dune: Awakening Self-Hosted Server** directly on **Proxmox VE (KVM)**.
@@ -48,7 +50,7 @@ Before starting, ensure you have:
   - **Proxmox VE 9.x recommended** (or latest fully updated stable branch)
   - Older versions may behave differently during VHDX import, EFI boot setup, or disk attachment
 - 💾 System resources for the VM:
-  - At least **40GB free RAM for the full experince**
+  - At least **40GB free RAM for the full experience**
   - Minimum **110GB free storage**
   - AVX2 CPU instruction set
 - 🌐 Internet connectivity on the Proxmox host
