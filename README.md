@@ -1,9 +1,9 @@
-# 🏜️ Dune: Awakening — Native Proxmox Migration Guide
+# 🏜️ Dune: Awakening - Native Proxmox Migration Guide
 
 This guide explains how to deploy the **Dune: Awakening Self-Hosted Server** directly on **Proxmox VE (KVM)**.
 
-While I will maintain this project due to the love in Dune: Awakening, myself am using another method for the time being for my own personal host (E-Arena.gr).
-Also please have a look into another project of mine > In case your server isn't accessible from the web or you have dynamic IP and it has changed, you can fix this with this other script of mine > https://github.com/comfuzio/Dune-Awakening-remote-players-fix (backups always first)
+As I have now completed everything in the game and have moved on to other games I will no longer maintain this project. Nevertheless the project works great. 
+Please have a look into another project of mine > In case your server isn't accessible from the web or you have dynamic IP and it has changed, you can fix this with this other script of mine > https://github.com/comfuzio/Dune-Awakening-remote-players-fix (backups always first)
 
 # Warning! 
 Official PTC Dune: Awakening discord community is highly toxic and hostile.
@@ -17,13 +17,13 @@ Official PTC Dune: Awakening discord community is highly toxic and hostile.
 
 Running the server directly on Proxmox significantly reduces overhead and improves overall stability and performance compared to nested Hyper-V virtualization.
 
-> 🚧 This project is still a work in progress.
+> 🚧 This project is now completed.
 
 ---
 
 # 💬 Community Discord
 
-Join the E-Arena.gr community Discord: https://discord.gg/xmYSSTJkMz if you need support or help. Other channels or servers are no longer supported.
+Join the E-Arena.gr community Discord: https://discord.gg/xmYSSTJkMz if you need support or help.
 
 ---
 
@@ -463,7 +463,7 @@ Your Dune: Awakening server should now run natively on Proxmox VE with significa
 
 The most important Proxmox-specific requirement is ensuring the imported disk is attached as **SCSI 0 before first boot**, otherwise Funcom’s expansion process may fail.
 
-This guide will evolve as dedicated server tooling changes during public testing.
+This guide is now completed and the project is no longer actively maintained.
 
 Decoration and alignment of elements in this guide was done with the help of AI.
 
